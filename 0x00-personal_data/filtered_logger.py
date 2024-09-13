@@ -1,8 +1,11 @@
 #!/usr/bin/env python3
 """Personal data Task"""
 import logging
+import os
 from typing import Tuple, List
 import re
+import mysql.connector
+from mysql.connector.connection import MySQLConnection
 
 PII_FIELDS: Tuple = ("name", "email", "phone", "ssn", "password")
 
@@ -28,6 +31,18 @@ def get_logger() -> logging.Logger:
     logger.addHandler(handler)
 
     return logger
+
+
+def get_db() -> MySQLConnection:
+    """function that returns a connector to the database"""
+    db = mysql.connector.connect(
+        host=os.getenv("PERSONAL_DATA_DB_HOST", "localhost"),
+        port=3306,
+        user=os.getenv("PERSONAL_DATA_DB_USERNAME", "root"),
+        password=os.getenv("PERSONAL_DATA_DB_PASSWORD", ""),
+        database=os.getenv("PERSONAL_DATA_DB_NAME")
+    )
+    return db
 
 
 class RedactingFormatter(logging.Formatter):
