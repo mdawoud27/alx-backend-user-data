@@ -45,6 +45,24 @@ def get_db() -> MySQLConnection:
     return db
 
 
+def main() -> None:
+    """Main function"""
+    logger = get_logger()
+    db = get_db()
+    cursor = db.cursor()
+
+    cursor.execute("SELECT * FROM users;")
+    users = cursor.fetchall()
+    column_names = cursor.column_names
+
+    for user in users:
+        formated_user = "".join(f"{attribute}={value}; " for
+                                attribute, value in zip(column_names, user))
+        logger.info(formated_user)
+    cursor.close()
+    db.close()
+
+
 class RedactingFormatter(logging.Formatter):
     """ Redacting Formatter class
         """
