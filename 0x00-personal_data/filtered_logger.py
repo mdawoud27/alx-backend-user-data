@@ -4,6 +4,8 @@ import logging
 from typing import Tuple, List
 import re
 
+PII_FIELDS: Tuple = ("name", "email", "phone", "ssn", "password")
+
 
 def filter_datum(fields: List[str], redaction: str,
                  message: str, separator: str) -> str:
@@ -12,6 +14,20 @@ def filter_datum(fields: List[str], redaction: str,
                   lambda match: '{}={}'.format(match.group(1), redaction)
                   if match.group(1) in fields
                   else '{}={}'.format(match.group(1), match.group(2)), message)
+
+
+def get_logger() -> logging.Logger:
+    """Function which returns a logging.Logger object."""
+    logger = logging.getLogger("user-data")
+    logger.propagate = False
+
+    handler = logging.StreamHandler()
+    handler.setFormatter(RedactingFormatter(PII_FIELDS))
+
+    logger.setLevel(logging.INFO)
+    logger.addHandler(handler)
+
+    return logger
 
 
 class RedactingFormatter(logging.Formatter):
