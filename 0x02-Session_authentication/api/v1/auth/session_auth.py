@@ -1,13 +1,14 @@
 #!/usr/bin/env python3
-"""SessionAuth Module"""
+"""Implement session auth for end points API"""
+import uuid
 
 from api.v1.auth.auth import Auth
 from models.user import User
-import uuid
 
 
 class SessionAuth(Auth):
-    """SessionAuth Class"""
+    """ Session auth class"""
+
     user_id_by_session_id: dict = {}
 
     def create_session(self, user_id: str = None) -> str:
@@ -37,3 +38,20 @@ class SessionAuth(Auth):
 
         user = User.get(user_id)
         return user
+
+    def destroy_session(self, request=None):
+        """ Deletes the user session"""
+        if not request:
+            return False
+
+        session_id = self.session_cookie(request)
+        if not session_id:
+            return False
+
+        user_id = self.user_id_for_session_id(session_id)
+        if not user_id:
+            return False
+
+        del self.user_id_by_session_id[session_id]
+
+        return True
