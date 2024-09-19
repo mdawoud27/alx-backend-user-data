@@ -13,7 +13,6 @@ from flask import Flask, jsonify, abort, request
 from flask_cors import (CORS, cross_origin)
 import os
 
-
 app = Flask(__name__)
 app.register_blueprint(app_views)
 CORS(app, resources={r"/api/v1/*": {"origins": "*"}})
@@ -42,34 +41,37 @@ def not_found(error) -> str:
 
 @app.errorhandler(401)
 def unauthorized(error) -> str:
-    """unauthorized handler"""
+    """ Unauthorized handler
+    """
     return jsonify({"error": "Unauthorized"}), 401
 
 
 @app.errorhandler(403)
 def forbidden(error) -> str:
-    """forbidden handler"""
+    """ Forbidden handler
+    """
     return jsonify({"error": "Forbidden"}), 403
 
 
 @app.before_request
 def handle_auth() -> None:
-    """handle_auth function"""
+    """Handle authorization before sending requests"""
     if not auth:
         return
 
     excluded_list = ['/api/v1/status/', '/api/v1/unauthorized/',
-                     '/api/v1/forbidden/']
+                     '/api/v1/forbidden/', '/api/v1/auth_session/login/']
     require_auth = auth.require_auth(request.path, excluded_list)
     if not require_auth:
         return
 
     auth_header = auth.authorization_header(request)
-    if not auth_header:
+    auth_cookie = auth.session_cookie(request)
+    if not auth_header and not auth_cookie:
         abort(401)
 
-    current_user = auth.current_user(request)
-    if not current_user:
+    request.current_user = auth.current_user(request)
+    if not request.current_user:
         abort(403)
 
 
