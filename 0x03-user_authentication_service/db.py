@@ -51,7 +51,7 @@ class DB:
             user_by_id = self.find_user_by(id=user_id)
         except NoResultFound:
             return None
-        
+
         for key, value in kwargs.items():
             if hasattr(user_by_id, key):
                 setattr(user_by_id, key, value)
