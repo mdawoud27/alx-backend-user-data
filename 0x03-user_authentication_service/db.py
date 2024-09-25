@@ -44,3 +44,17 @@ class DB:
         if not filtered_user:
             raise NoResultFound
         return filtered_user
+
+    def update_user(self, user_id: int, **kwargs) -> None:
+        """Update user function"""
+        try:
+            user_by_id = self.find_user_by(id=user_id)
+        except NoResultFound:
+            return None
+        
+        for key, value in kwargs.items():
+            if hasattr(user_by_id, key):
+                setattr(user_by_id, key, value)
+            else:
+                raise ValueError
+        self._session.commit()
