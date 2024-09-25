@@ -14,6 +14,7 @@ def index() -> str:
     """Home page"""
     return jsonify({"message": "Bienvenue"})
 
+
 @app.route("/users", methods=["POST"])
 def register() -> str:
     """POST /users"""
